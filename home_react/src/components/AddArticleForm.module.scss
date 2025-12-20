@@ -1,0 +1,29 @@
+@import "../styles/variables";
+@import "../styles/mixins";
+
+.form {
+  display: flex;
+  gap: $space-1;
+  flex-wrap: wrap;
+  padding: $space-2;
+  border: 1px solid #eee;
+  border-radius: $radius-md;
+  margin: $space-2 auto;
+  max-width: $card-max-width;
+}
+
+.input {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid $color-border;
+  min-width: 180px;
+}
+
+.button {
+  @include font(14px, 600, 1.2);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid $color-border;
+  background: #f7f7f7;
+  cursor: pointer;
+}

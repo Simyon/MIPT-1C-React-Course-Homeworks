@@ -1,0 +1,122 @@
+@import "../styles/variables";
+@import "../styles/mixins";
+
+.card {
+  @include article-card;
+
+  &.liked {
+    border-color: $color-border-liked;
+  }
+
+  .title {
+    @include font(20px, 700, 1.2);
+    margin: 0 0 $space-1;
+  }
+
+  .text {
+    @include font(16px, 400, 1.4);
+    color: $color-muted;
+    margin: 0 0 $space-2;
+  }
+
+  .metaRow {
+    display: flex;
+    gap: $space-2;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .meta {
+    @include font(14px, 600, 1.2);
+  }
+
+  .button {
+    @include font(14px, 600, 1.2);
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid $color-border;
+    background: #f7f7f7;
+    cursor: pointer;
+
+    &.danger {
+      border-color: #e53935;
+    }
+  }
+
+  .badge {
+    display: none;
+    @include font(12px, 600, 1.2);
+    padding: 2px 8px;
+    border-radius: $radius-pill;
+    border: 1px solid $color-border-liked;
+
+    &.badgeVisible {
+      display: inline-block;
+    }
+  }
+
+  .comments {
+    margin-top: $space-2;
+    padding-top: $space-2;
+    border-top: 1px solid #eee;
+    display: none;
+
+    &.open {
+      display: block;
+    }
+
+    .loader,
+    .empty {
+      @include font(14px, 400, 1.2);
+      color: $color-muted;
+    }
+
+    .commentList {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .commentItem {
+      margin-bottom: $space-1;
+
+      button {
+        margin-left: $space-1;
+      }
+    }
+
+    .form {
+      margin-top: $space-2;
+      display: flex;
+      gap: $space-1;
+      flex-wrap: wrap;
+    }
+
+    .input {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid $color-border;
+      min-width: 180px;
+    }
+  }
+}
+
+@media (max-width: $bp-sm) {
+  .card {
+    padding: $space-2;
+
+    .metaRow {
+      gap: $space-1;
+    }
+
+    .comments {
+      .form {
+        flex-direction: column;
+
+        .input {
+          width: 100%;
+          min-width: 0;
+        }
+      }
+    }
+  }
+}
