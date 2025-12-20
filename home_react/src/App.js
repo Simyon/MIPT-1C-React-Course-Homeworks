@@ -8,10 +8,17 @@ import AddArticleForm from "./components/AddArticleForm";
 function App() {
   const [articles, setArticles] = useState([]);
   const [isLoadingArticles, setIsLoadingArticles] = useState(true);
+<<<<<<< HEAD
 
   const [articlesSort, setArticlesSort] = useState(null); // <-- ключевая строка
 
   const [commentsByArticleId, setCommentsByArticleId] = useState({});
+=======
+  
+  const [articlesSort, setArticlesSort] = useState(null); // "date" | "likes" | null
+  
+  const [commentsByArticleId, setCommentsByArticleId] = useState({}); 
+>>>>>>> 3285938 (Задание 6 готово.)
 
   useEffect(() => {
     setIsLoadingArticles(true);
@@ -44,7 +51,11 @@ function App() {
     }));
 
     setCommentsByArticleId((prev) => ({ ...prev, [articleId]: normalized }));
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 3285938 (Задание 6 готово.)
     setArticles((prev) =>
       prev.map((a) =>
         a.articleId === articleId ? { ...a, commentsCount: normalized.length } : a

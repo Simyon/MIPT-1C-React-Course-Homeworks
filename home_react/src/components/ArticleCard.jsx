@@ -19,12 +19,20 @@ export default function ArticleCard({
   onEditArticleText,
 }) {
   const { articleId, commentsCount } = article;
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 3285938 (Задание 6 готово.)
   const [likedArticle, setLikedArticle] = useState(false);
   
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [isLoadingComments, setIsLoadingComments] = useState(false);
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 3285938 (Задание 6 готово.)
   const [commentsSort, setCommentsSort] = useState(null); // "date" | "likes" | null
   
   const [author, setAuthor] = useState("");
