@@ -1,0 +1,11 @@
+@import "./styles/variables";
+@import "./styles/mixins";
+
+.root {
+  padding: $space-3;
+
+  h1 {
+    @include font(28px, 800, 1.2);
+    margin: 0 0 $space-2;
+  }
+}

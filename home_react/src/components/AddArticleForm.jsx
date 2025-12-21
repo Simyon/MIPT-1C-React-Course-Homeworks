@@ -1,4 +1,5 @@
 import { useState } from "react";
+import styles from "./AddArticleForm.module.scss";
 
 export default function AddArticleForm({ onAddArticle }) {
   const [title, setTitle] = useState("");
@@ -6,7 +7,6 @@ export default function AddArticleForm({ onAddArticle }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const t = title.trim();
     const x = text.trim();
     if (!t || !x) return;
@@ -17,21 +17,22 @@ export default function AddArticleForm({ onAddArticle }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ margin: "12px 0", padding: 12, border: "1px solid #eee", borderRadius: 12 }}>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-        <input
-          placeholder="Article title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <input
-          placeholder="Article text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          style={{ minWidth: 320 }}
-        />
-        <button type="submit">Add article</button>
-      </div>
+    <form className={styles.form} onSubmit={handleSubmit}>
+      <input
+        className={styles.input}
+        placeholder="Article title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+      />
+      <input
+        className={styles.input}
+        placeholder="Article text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <button className={styles.button} type="submit">
+        Add article
+      </button>
     </form>
   );
 }

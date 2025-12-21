@@ -1,0 +1,17 @@
+@import "./variables";
+
+@mixin font($size: 16px, $weight: 400, $lineHeight: 1.4) {
+  font-size: $size;
+  font-weight: $weight;
+  line-height: $lineHeight;
+  color: $color-text;
+}
+
+@mixin article-card {
+  background: $color-bg;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  padding: $space-3;
+  max-width: $card-max-width;
+  margin: $space-2 auto;
+}

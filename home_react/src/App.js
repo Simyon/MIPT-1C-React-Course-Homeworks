@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import "./App.css";
+import styles from "./App.module.scss";
 
 import { getArticles } from "./helpers/get-articles";
 import ArticleCard from "./components/ArticleCard";
@@ -79,7 +79,7 @@ function App() {
   };
 
   return (
-    <div className="App" style={{ padding: 16 }}>
+    <div className={styles.root}>
       <h1>Articles</h1>
 
       <AddArticleForm onAddArticle={handleAddArticle} />
