@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import classNames from "classnames/bind";
 import styles from "./ArticleCard.module.scss";
 
@@ -22,34 +22,109 @@ import {
 } from "../store/commentsSlice";
 
 const cx = classNames.bind(styles);
+const commentFormInitial = { author: "", text: "" };
+
+function commentFormReducer(state, action) {
+  switch (action.type) {
+    case "setAuthor":
+      return { ...state, author: action.payload };
+    case "setText":
+      return { ...state, text: action.payload };
+    case "reset":
+      return commentFormInitial;
+    default:
+      return state;
+  }
+}
+
+
+function CommentRow({ comment, onDelete, onToggleLike, onSaveText }) {
+  const [liked, setLiked] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [draft, setDraft] = useState(comment.text);
+
+  useEffect(() => setDraft(comment.text), [comment.text]);
+
+  const toggle = () => {
+    setLiked((prev) => {
+      const next = !prev;
+      onToggleLike(next);
+      return next;
+    });
+  };
+
+  const save = () => {
+    const t = draft.trim();
+    if (!t) return;
+    onSaveText(t);
+    setIsEdit(false);
+  };
+
+  return (
+    <li className={styles.commentItem} style={{ marginBottom: 10 }}>
+      <div>
+        <b>{comment.author}</b>{" "}
+        <span style={{ fontSize: 12, opacity: 0.7 }}>
+          {new Date(comment.createdAt).toLocaleString("ru-RU")}
+        </span>
+      </div>
+
+      {isEdit ? (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+          <input value={draft} onChange={(e) => setDraft(e.target.value)} />
+          <button onClick={save}>Save</button>
+          <button onClick={() => setIsEdit(false)}>Cancel</button>
+        </div>
+      ) : (
+        <div style={{ marginTop: 4 }}>{comment.text}</div>
+      )}
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+        <span>Likes: {comment.likes ?? 0}</span>
+        <button onClick={toggle}>{liked ? "Unlike" : "Like"}</button>
+        <button onClick={() => setIsEdit(true)}>Edit</button>
+        <button onClick={onDelete}>Delete</button>
+      </div>
+    </li>
+  );
+}
 
 export default function ArticleCard({ article }) {
   const dispatch = useDispatch();
   const articleId = article.articleId;
 
+  const [isEditTitle, setIsEditTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(article.title);
+
+  const [isEditText, setIsEditText] = useState(false);
+  const [textDraft, setTextDraft] = useState(article.text);
+
   const comments = useSelector((s) => s.comments.byArticleId[articleId]);
   const isLoadingComments = useSelector((s) => s.comments.isLoadingByArticleId[articleId]);
   const commentsSort = useSelector((s) => s.comments.sortByArticleId[articleId] ?? null);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [commentForm, commentDispatch] = useReducer(commentFormReducer, commentFormInitial);
 
   const [likedArticle, setLikedArticle] = useState(false);
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   
-  const [isEditTitle, setIsEditTitle] = useState(false);
-  const [isEditText, setIsEditText] = useState(false);
-  const [titleDraft, setTitleDraft] = useState(article.title);
-  const [textDraft, setTextDraft] = useState(article.text);
-
   useEffect(() => setTitleDraft(article.title), [article.title]);
   useEffect(() => setTextDraft(article.text), [article.text]);
-  
-  const [author, setAuthor] = useState("");
-  const [commentTextDraft, setCommentTextDraft] = useState("");
   
   useEffect(() => {
     if (!isCommentsOpen) return;
     if (Array.isArray(comments)) return;
 
-    dispatch(fetchCommentsByArticleId(articleId));    
+    dispatch(fetchCommentsByArticleId(articleId))
+      .unwrap()
+      .catch((err) => {
+        console.error(
+          "[api error]",
+          new Date().toISOString(),
+          "fetchCommentsByArticleId",
+          { articleId },
+          err
+        );
+      });
   }, [dispatch, isCommentsOpen, comments, articleId]);
   
   useEffect(() => {
@@ -91,15 +166,14 @@ export default function ArticleCard({ article }) {
 
   const submitComment = (e) => {
     e.preventDefault();
-    const a = author.trim();
-    const t = commentTextDraft.trim();
+    const a = commentForm.author.trim();
+    const t = commentForm.text.trim();
     if (!a || !t) return;
 
     dispatch(addComment({ articleId, author: a, text: t }));
     dispatch(incrementCommentsCount(articleId));
 
-    setAuthor("");
-    setCommentTextDraft("");
+    commentDispatch({ type: "reset" });
   };
 
   return (
@@ -219,15 +293,14 @@ export default function ArticleCard({ article }) {
               <input
                 className={styles.input}
                 placeholder="Author"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
+                value={commentForm.author}
+                onChange={(e) => commentDispatch({ type: "setAuthor", payload: e.target.value })}
               />
               <input
                 className={styles.input}
                 placeholder="Comment text"
-                value={commentTextDraft}
-                onChange={(e) => setCommentTextDraft(e.target.value)}
-                style={{ minWidth: 240 }}
+                value={commentForm.text}
+                onChange={(e) => commentDispatch({ type: "setText", payload: e.target.value })}
               />
               <button className={styles.button} type="submit">
                 Publish
@@ -237,56 +310,5 @@ export default function ArticleCard({ article }) {
         )}
       </div>
     </div>
-  );
-}
-
-function CommentRow({ comment, onDelete, onToggleLike, onSaveText }) {
-  const [liked, setLiked] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
-  const [draft, setDraft] = useState(comment.text);
-
-  useEffect(() => setDraft(comment.text), [comment.text]);
-
-  const toggle = () => {
-    setLiked((prev) => {
-      const next = !prev;
-      onToggleLike(next);
-      return next;
-    });
-  };
-
-  const save = () => {
-    const t = draft.trim();
-    if (!t) return;
-    onSaveText(t);
-    setIsEdit(false);
-  };
-
-  return (
-    <li className={styles.commentItem} style={{ marginBottom: 10 }}>
-      <div>
-        <b>{comment.author}</b>{" "}
-        <span style={{ fontSize: 12, opacity: 0.7 }}>
-          {new Date(comment.createdAt).toLocaleString("ru-RU")}
-        </span>
-      </div>
-
-      {isEdit ? (
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
-          <input value={draft} onChange={(e) => setDraft(e.target.value)} />
-          <button onClick={save}>Save</button>
-          <button onClick={() => setIsEdit(false)}>Cancel</button>
-        </div>
-      ) : (
-        <div style={{ marginTop: 4 }}>{comment.text}</div>
-      )}
-
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
-        <span>Likes: {comment.likes ?? 0}</span>
-        <button onClick={toggle}>{liked ? "Unlike" : "Like"}</button>
-        <button onClick={() => setIsEdit(true)}>Edit</button>
-        <button onClick={onDelete}>Delete</button>
-      </div>
-    </li>
   );
 }

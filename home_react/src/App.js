@@ -1,6 +1,6 @@
-import { fetchArticles } from "./store/articlesSlice";
+import { addArticle, fetchArticles } from "./store/articlesSlice";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 
 import ArticlesPage from "./pages/ArticlesPage";
@@ -13,8 +13,27 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchArticles());
+    dispatch(fetchArticles())
+      .unwrap()
+      .catch((err) => {
+        console.error("[api error]", new Date().toISOString(), "fetchArticles", err);
+      });
   }, [dispatch]);
+
+  const handleAddArticle = useCallback(
+    ({ title, text }) => {
+      const newArticle = {
+        articleId: Date.now(),
+        title,
+        text,
+        currentLikes: 0,
+        commentsCount: 0,
+        createdAt: Date.now(),
+      };
+      dispatch(addArticle(newArticle));
+    },
+    [dispatch]
+  );
 
   return (
     <div className={styles.applicationHolder}>
